@@ -1,0 +1,42 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++ Build: g++.exe",
+            "command": "C:\\MSYS2\\ucrt64\\bin\\g++.exe",
+            "args": [
+                "-I${workspaceFolder}\\GLEW\\",
+                "-I${workspaceFolder}\\GLFW\\",
+                "-I${workspaceFolder}\\src\\",
+                // "-I${workspaceFolder}\\src\\vendor\\stb_image\\",
+                "-g",
+                "${workspaceFolder}\\src\\Application.cpp",
+                "${workspaceFolder}\\src\\Renderer.cpp",
+                "${workspaceFolder}\\src\\IndexBuffer.cpp",
+                "${workspaceFolder}\\src\\VertexBuffer.cpp",
+                "${workspaceFolder}\\src\\VertexArray.cpp",
+                "${workspaceFolder}\\src\\Shader.cpp",
+                // "${workspaceFolder}\\src\\Texture.cpp",
+                // "${workspaceFolder}\\src\\vendor\\stb_image\\stb_image.cpp",
+                "-o",
+                "${workspaceFolder}\\Application.exe",
+                "-L${workspaceFolder}\\GLEW\\lib\\",
+                "-L${workspaceFolder}\\GLFW\\lib\\",
+                "-lglew32s",
+                "-DGLEW_STATIC",
+                "-lglfw3",
+                "-lopengl32",
+                "-lgdi32"
+            ],
+            "options": {
+                "cwd": ""
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "Builder task"
+        }
+    ],
+    "version": "2.0.0"
+}
