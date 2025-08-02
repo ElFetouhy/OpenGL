@@ -33,7 +33,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(800, 600, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(960, 540, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -58,11 +58,11 @@ int main(void)
     glDisable(GL_DEPTH_TEST);
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
    
-    float positions[]{
-        -0.5f, -0.5f, 0.0f, 0.0f,
-         0.5f, -0.5f, 1.0f, 0.0f,
-         0.5f,  0.5f, 1.0f, 1.0f,
-        -0.5f,  0.5f, 0.0f, 1.0f
+    float positions[]{ // vertex positions ()
+        100.0f, 100.0f, 0.0f, 0.0f,
+        200.0f, 100.0f, 1.0f, 0.0f,
+        200.0f, 200.0f, 1.0f, 1.0f,
+        100.0f, 200.0f, 0.0f, 1.0f
     };
     
     
@@ -85,13 +85,21 @@ int main(void)
 
     IndexBuffer ib(indices, 6);
 
-    glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+    glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0));
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200,200,0));
+
+    glm::mat4 mvp = proj * view * model;
+    // glm::vec4 vp(100.0f, 100.0f, 0.0f, 1.0f); // vertex position
+
+    // glm::vec4 result = proj * vp;
+    // std::cout << result.x << std::endl;
 
     Shader shader("C:\\Users\\User\\Desktop\\VisualStudio\\C++\\OpenGL\\res\\shaders\\Shader.shader");
     shader.Bind();
     shader.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
     // C:\Users\User\Desktop\VisualStudio\C++\OpenGl\res\shaders\Shader.glsl
-    shader.SetUniformMat4f("u_MVP", proj);
+    shader.SetUniformMat4f("u_MVP", mvp);
     
     Texture texture("C:\\Users\\User\\Desktop\\VisualStudio\\C++\\OpenGL\\res\\textures\\logo3.png"); //res\textures\logo.png
     texture.Bind();
