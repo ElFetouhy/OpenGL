@@ -1,14 +1,15 @@
 #include "Texture.h"
 #include "stb_image.h"
 #include <iostream>
+#include "GLErrorHandler.h"
 
-Texture::Texture(const std::string& path)
-    : m_RendererID(0), m_FilePath(path), m_LocalBuffer(nullptr),
+Texture::Texture(const std::string& filepath)
+    : m_RendererID(0), m_FilePath(filepath), m_LocalBuffer(nullptr),
     m_Width(0), m_Height(0), m_BPP(0)
 {
     stbi_set_flip_vertically_on_load(1);
-    m_LocalBuffer = stbi_load(path.c_str(), &m_Width, &m_Height, &m_BPP, 4);
-    std::cout << "w: " << m_Width << ", h: " << m_Height << ", bpp: " << m_BPP << std::endl;
+    m_LocalBuffer = stbi_load(m_FilePath.c_str(), &m_Width, &m_Height, &m_BPP, 4);
+    std::cout << "fp: "<< m_FilePath << ", w: " << m_Width << ", h: " << m_Height << ", bpp: " << m_BPP << std::endl;
     GLCall(glGenTextures(1, &m_RendererID));
     GLCall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
 
@@ -19,9 +20,12 @@ Texture::Texture(const std::string& path)
 
     GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_LocalBuffer));
     GLCall(glBindTexture(GL_TEXTURE_2D, 0));
-
-    if(m_LocalBuffer)
+    
+    if(m_LocalBuffer){
         stbi_image_free(m_LocalBuffer);
+    }else{
+        std::cout << "FALLO CARGANDO IMAGEN" << std::endl;
+    }
     
 }
 Texture::~Texture()

@@ -4,8 +4,10 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}\\GLEW",
-                "${workspaceFolder}\\GLFW"
+                "${workspaceFolder}\\GLEW\\",
+                "${workspaceFolder}\\GLFW\\",
+                "${workspaceFolder}\\src\\vendor\\stb_image\\",
+                "${workspaceFolder}\\src\\vendor\\glm\\"
             ],
             "defines": [
                 "_DEBUG",

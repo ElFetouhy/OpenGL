@@ -5,13 +5,14 @@
 #include <fstream>
 #include <sstream>
 
-#include "Renderer.h"
-
+#include "GLErrorHandler.h"
 
 Shader::Shader(const std::string& filepath)
     : m_FilePath(filepath), m_RendererID(0)
 {
     ShaderProgramSource source = ParseShader(filepath);
+    // std::cout << "Vertex Shader Source:\n" << source.VertexSource << std::endl;
+    // std::cout << "Fragment Shader Source:\n" << source.FragmentSource << std::endl;
     m_RendererID = CreateShader(source.VertexSource, source.FragmentSource);
 }
 
@@ -52,6 +53,7 @@ ShaderProgramSource Shader::ParseShader(const std::string& filepath)
             ss[(int)type] << line << "\n";
         }
     }
+    std::cout << ss << std::endl;
     return {ss[0].str(), ss[1].str()};
 }
 
@@ -107,29 +109,33 @@ unsigned int Shader::CreateShader(const std::string& vertexShader, const std::st
     return program;
 }
 
-void Shader::Bind()
+void Shader::Bind() const
 {
     GLCall(glUseProgram(m_RendererID));
 }
 
-void Shader::Unbind()
+void Shader::Unbind() const
 {
     GLCall(glUseProgram(0));
 }
 
-// void Shader::SetUniform1i(const std::string& name, int value)
-// {
-//     GLCall(glUniform1i(GetUniformLocations(name), value));
-// }
+void Shader::SetUniform1i(const std::string& name, int value)
+{
+    GLCall(glUniform1i(GetUniformLocations(name), value));
+}
 
-// void Shader::SetUniform1f(const std::string& name, float value)
-// {
-//     GLCall(glUniform1f(GetUniformLocations(name), value));
-// }
+void Shader::SetUniform1f(const std::string& name, float value)
+{
+    GLCall(glUniform1f(GetUniformLocations(name), value));
+}
 
 void Shader::SetUniform4f(const std::string& name, float f0, float f1, float f2, float f3)
 {
-    GLCall(glUniform4f(GetUniformLocations(name), f0, f1, f2, f3))
+    GLCall(glUniform4f(GetUniformLocations(name), f0, f1, f2, f3));
+}
+void Shader::SetUniformMat4f(const std::string& name, const glm::mat4& matrix )
+{
+    GLCall(glUniformMatrix4fv(GetUniformLocations(name), 1, GL_FALSE, &matrix[0][0]));
 }
 
  int Shader::GetUniformLocations(const std::string& name)

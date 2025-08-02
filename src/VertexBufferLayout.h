@@ -4,6 +4,8 @@
 #include <vector>
 #include <glew.h>
 
+#include "GLErrorHandler.h"
+
 struct VertexBufferElement
 {
     unsigned int type;

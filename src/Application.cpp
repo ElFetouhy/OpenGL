@@ -6,14 +6,19 @@
 #include <string>
 #include <sstream>
 
-#include "Renderer.h"
+#include "GLErrorHandler.h"
 
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 #include "Shader.h"
-// #include "Texture.h"
+
+#include "Renderer.h"
+#include "Texture.h"
+
+#include "glm.hpp"
+#include "gtc/matrix_transform.hpp"
 
 int main(void)
 {
@@ -23,9 +28,9 @@ int main(void)
     if (!glfwInit())
         return -1;
 
-    // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
-    // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
-    // glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(800, 600, "Hello World", NULL, NULL);
@@ -46,49 +51,59 @@ int main(void)
     std::cout << glGetString(GL_VERSION) << std::endl;
 
     {
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    glViewport(0, 0, width, height);
+    
+    glDisable(GL_DEPTH_TEST);
+    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+   
     float positions[]{
-        -0.5f, -0.5f, //0.0f, 0.0f,
-         0.5f, -0.5f, //1.0f, 0.0f,
-         0.5f,  0.5f, //1.0f, 1.0f,
-        -0.5f,  0.5f //0.0f, 1.0f
+        -0.5f, -0.5f, 0.0f, 0.0f,
+         0.5f, -0.5f, 1.0f, 0.0f,
+         0.5f,  0.5f, 1.0f, 1.0f,
+        -0.5f,  0.5f, 0.0f, 1.0f
     };
-
+    
+    
     unsigned int indices[]{
         0, 1, 2,
         2, 3, 0
     };
 
-    // GLCall(glEnable(GL_BLEND));
-    // GLCall(glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA));
+    GLCall(glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA));
+    GLCall(glEnable(GL_BLEND));
 
     VertexArray va;
-    VertexBuffer vb(positions, 4 * 2 * sizeof(float));
+    VertexBuffer vb(positions, 4 * 4 * sizeof(float));
 
     VertexBufferLayout layout;
-    // layout.Push<float>(2);
+    layout.Push<float>(2);
     layout.Push<float>(2);
     va.AddBuffer(vb, layout);
 
 
     IndexBuffer ib(indices, 6);
 
-    Shader shader("..\\res\\shaders\\Shader.glsl");
+    glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+
+    Shader shader("C:\\Users\\User\\Desktop\\VisualStudio\\C++\\OpenGL\\res\\shaders\\Shader.shader");
     shader.Bind();
     shader.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
     // C:\Users\User\Desktop\VisualStudio\C++\OpenGl\res\shaders\Shader.glsl
-
-    // Texture texture("..\\res\\textures\\logo.png"); //res\textures\logo.png
-    // texture.Bind(1);
-    // shader.SetUniform1i("u_Texture", 1);
+    shader.SetUniformMat4f("u_MVP", proj);
+    
+    Texture texture("C:\\Users\\User\\Desktop\\VisualStudio\\C++\\OpenGL\\res\\textures\\logo3.png"); //res\textures\logo.png
+    texture.Bind();
+    shader.SetUniform1i("u_Texture", 0);
 
     //Unbind everything 
-    va.Unbind();
-    vb.Unbind();
     ib.Unbind();
+    va.Unbind();
     shader.Unbind();
     // texture.Unbind();
 
-    // Renderer renderer;
+    Renderer renderer;
 
     float r = 0.0f;
     float increment = 0.05f;
@@ -97,16 +112,15 @@ int main(void)
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        // renderer.Clear();
-        GLCall(glClear(GL_COLOR_BUFFER_BIT));
-        va.Bind();
-        ib.Bind();
+        renderer.Clear();
+        // GLCall(glClear(GL_COLOR_BUFFER_BIT));
+        // va.Bind();
+        // ib.Bind();
         shader.Bind();
         shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
-
-        // glDrawArrays(GL_TRIANGLES, 0, 6);
-        // renderer.Draw(va, ib, shader);
-        GLCall( glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+        //  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        // texture.Bind();
+        renderer.Draw(va, ib, shader);
 
         if(r > 1.0f)
             increment = -0.05f;
