@@ -17,8 +17,12 @@
 #include "Renderer.h"
 #include "Texture.h"
 
-#include "glm.hpp"
+#include "glm/glm.hpp"
 #include "gtc/matrix_transform.hpp"
+
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 int main(void)
 {
@@ -31,6 +35,7 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
     glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
+    const char* glsl_version = "#version 130";
 
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(960, 540, "Hello World", NULL, NULL);
@@ -51,12 +56,7 @@ int main(void)
     std::cout << glGetString(GL_VERSION) << std::endl;
 
     {
-    int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
-    glViewport(0, 0, width, height);
     
-    glDisable(GL_DEPTH_TEST);
-    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
    
     float positions[]{ // vertex positions ()
         100.0f, 100.0f, 0.0f, 0.0f,
@@ -87,9 +87,7 @@ int main(void)
 
     glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
     glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0));
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200,200,0));
-
-    glm::mat4 mvp = proj * view * model;
+    
     // glm::vec4 vp(100.0f, 100.0f, 0.0f, 1.0f); // vertex position
 
     // glm::vec4 result = proj * vp;
@@ -99,7 +97,6 @@ int main(void)
     shader.Bind();
     shader.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
     // C:\Users\User\Desktop\VisualStudio\C++\OpenGl\res\shaders\Shader.glsl
-    shader.SetUniformMat4f("u_MVP", mvp);
     
     Texture texture("C:\\Users\\User\\Desktop\\VisualStudio\\C++\\OpenGL\\res\\textures\\logo3.png"); //res\textures\logo.png
     texture.Bind();
@@ -113,6 +110,14 @@ int main(void)
 
     Renderer renderer;
 
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+    ImGui::StyleColorsDark();
+
+    glm::vec3 translation(200,200,0);
+
     float r = 0.0f;
     float increment = 0.05f;
 
@@ -122,10 +127,17 @@ int main(void)
         /* Render here */
         renderer.Clear();
         // GLCall(glClear(GL_COLOR_BUFFER_BIT));
-        // va.Bind();
-        // ib.Bind();
+        // ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
+        glm::mat4 mvp = proj * view * model;
+        
         shader.Bind();
         shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
+        shader.SetUniformMat4f("u_MVP", mvp);
         //  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
         // texture.Bind();
         renderer.Draw(va, ib, shader);
@@ -136,6 +148,28 @@ int main(void)
             increment = 0.05f;
 
         r += increment;
+        
+        {
+            static float f = 0.0f;
+            static int counter = 0;
+
+            ImGui::Begin("Hello, world!"); // Create a window called "Hello, world!" and append into it.
+            ImGui::SliderFloat3("Translation", &translation.x, 0.0f,960.0f);
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+            ImGui::End();
+        }
+
+        ImGui::Render();
+        
+        /*  */
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+        glViewport(0, 0, width, height);
+        // glDisable(GL_DEPTH_TEST);
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+        /*  */
+        // ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -146,6 +180,10 @@ int main(void)
 
     // ib.Unbind();
     } // IBO error loop fix by creating scope 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
     glfwTerminate();
     return 0;
 }
