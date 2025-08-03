@@ -129,23 +129,37 @@ void Shader::SetUniform1f(const std::string& name, float value)
     GLCall(glUniform1f(GetUniformLocations(name), value));
 }
 
+void Shader::SetUniform2f(const std::string& name, float f0, float f1)
+{
+    GLCall(glUniform2f(GetUniformLocations(name), f0, f1));
+}
+void Shader::SetUniform3f(const std::string& name, float f0, float f1, float f2)
+{
+    GLCall(glUniform3f(GetUniformLocations(name), f0, f1, f2));
+}
 void Shader::SetUniform4f(const std::string& name, float f0, float f1, float f2, float f3)
 {
     GLCall(glUniform4f(GetUniformLocations(name), f0, f1, f2, f3));
+}
+void Shader::SetUniformMat3f(const std::string& name, const glm::mat3& matrix )
+{
+    GLCall(glUniformMatrix3fv(GetUniformLocations(name), 1, GL_FALSE, &matrix[0][0]));
 }
 void Shader::SetUniformMat4f(const std::string& name, const glm::mat4& matrix )
 {
     GLCall(glUniformMatrix4fv(GetUniformLocations(name), 1, GL_FALSE, &matrix[0][0]));
 }
 
- int Shader::GetUniformLocations(const std::string& name)
+GLint Shader::GetUniformLocations(const std::string& name) const
 {
+    //     because he did it wrong. And he did it wrong again:
+    // if(auto &f = m.find("key"); f != m.end) return f->second;
     if(m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
     {
         return m_UniformLocationCache[name];
     }
-    
-    GLCall( int location = glGetUniformLocation(m_RendererID, name.c_str()));
+
+    GLCall( GLint location = glGetUniformLocation(m_RendererID, name.c_str()));
     if(location == -1)
     {
         std::cout << "Warning: uniform '"<< name << "' doesnt exist!" << std::endl;
