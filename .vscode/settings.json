@@ -54,6 +54,8 @@
         "fstream": "cpp",
         "sstream": "cpp",
         "cstring": "cpp",
-        "iomanip": "cpp"
-    }
+        "iomanip": "cpp",
+        "set": "cpp"
+    },
+    "cmake.sourceDirectory": "C:/Users/User/Desktop/VisualStudio/C++/OpenGL/src/vendor/glm"
 }

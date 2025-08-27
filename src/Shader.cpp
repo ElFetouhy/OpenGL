@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "GLErrorHandler.h"
+#include "glm.hpp"
 
 Shader::Shader(const std::string& filepath)
     : m_FilePath(filepath), m_RendererID(0)

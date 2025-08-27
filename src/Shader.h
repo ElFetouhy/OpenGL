@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include "glm.hpp"
+#include "glew.h"
 
 struct ShaderProgramSource
 {
